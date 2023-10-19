@@ -14,7 +14,10 @@ def init_client():
 def init_sheet(workspace_name, sheet_name, client):
     workspaces_data = client.Workspaces.list_workspaces().to_dict()['data']
     workspace_id = next((w['id'] for w in workspaces_data if w['name'] == workspace_name), None)
-
+    
+    if sheet_name not in [s.name for s in client.Workspaces.get_workspace(workspace_id).sheets.to_list()]:
+        raise Exception(f'{sheet_name} not found in {workspace_name}, please check spelling and try again')
+        
     sheets_data = client.Workspaces.get_workspace(workspace_id).to_dict()['sheets']
     sheet_id = next((w['id'] for w in sheets_data if w['name'] == sheet_name), None)
 
