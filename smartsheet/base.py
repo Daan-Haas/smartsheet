@@ -23,9 +23,10 @@ def init_sheet(workspace_name, sheet_name, client):
 
     return client.Sheets.get_sheet(sheet_id), sheet_id
 
-def makedropdown(origin_sheet_name, origin_column_name, target_sheet_name, target_column_name, client, workspace):
+def update_dropdown_list(origin_sheet_name, origin_column_name, target_sheet_name, target_column_name, client, workspace):
 
-    # Exception handling
+    #1 Exception handling
+    
     if workspace not in [ws.name for ws in client.Workspaces.list_workspaces().data]:
         raise Exception(f"{workspace} not found as workspace, please check spelling and try again")
 
@@ -33,19 +34,25 @@ def makedropdown(origin_sheet_name, origin_column_name, target_sheet_name, targe
     target_sheet, target_sheet_id = init_sheet(workspace, target_sheet_name, client)
     origin_column_id = origin_sheet.get_column_by_title(origin_column_name).id_
 
-    # read the genders from the sheet and fill list with options
-    options = []
+    #2 read the values from the sheet and fill list
+    
+    list_values = []
     for row in origin_sheet.rows:
         for cell in row.cells:
             if cell.column_id == origin_column_id:
-                options.append(cell.value)
+                list_values.append(cell.value)
 
-    # find the column that needs dropdown menus
+    #3 find the target column
+    
     target_column = next(c for c in target_sheet.columns if c.title == target_column_name)
     target_column_id = target_column.id
 
-    # update the column with the dropdown list, and remove attributes to write to ss
-    target_column.options = options
+    if target_column.type not in ["MULTI_PICKLIST", "PICKLIST"]
+        raise Exception(f"{target_column_name} not of type dropdown list, please check spelling and try again")
+
+    #4 update the column with the dropdown list, and remove attributes to write to ss
+    
+    target_column.options = list_values
     target_column.id = None
     target_column.version = None
 
