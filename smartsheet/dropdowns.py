@@ -1,6 +1,6 @@
 # --- built ins ---
 # --- internals ---
-from base import init_sheet, init_client, makedropdown
+from base import init_sheet, init_client, make_dropdown
 
 # --- externals ---
 
@@ -12,4 +12,4 @@ lookup_column = 'Genders'
 # Initialize the smartsheet client and sheets
 smart = init_client()
 
-makedropdown(gender_sheet, lookup_column, addressbook_sheet, 'Gender', smart, workspace_name)
+make_dropdown(gender_sheet, lookup_column, addressbook_sheet, 'Gender', smart, workspace_name)
