@@ -1,8 +1,13 @@
 # --- built ins ---
+import logging
 # --- internals ---
 from base import *
 
 # --- externals ---
+
+
+# Set up logging
+logging.basicConfig(filename='errorlog.log', filemode='w', level=logging.WARNING)
 
 # Work space
 workspace = 'Standardisation Prime API TEST'

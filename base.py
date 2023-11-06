@@ -1,5 +1,6 @@
 # --- built ins ---
 import sys
+import logging
 # --- Internals ---
 # --- Externals ---
 from smartsheet import Smartsheet, sheets, workspaces
@@ -37,13 +38,17 @@ def init_sheet(workspace_name, sheet_name, client):
 
     # Error handling in case of invalid key
     except KeyError:
+        logging.error('Invalid Key')
         print('Invalid Key')
         sys.exit(1)
 
     # Error handling if workspace or sheet not found
     if not workspace_id:
+        logging.error(f"'{workspace_name}' not found in user's workspaces")
         raise Exception(f"'{workspace_name}' not found in user's workspaces")
     if sheet_name not in [s.name for s in client.Workspaces.get_workspace(workspace_id).sheets.to_list()]:
+        logging.error(f"no sheet: '{sheet_name}' found in workspace: '{workspace_name}'"
+                      ", please check spelling and try again")
         raise Exception(f"no sheet: '{sheet_name}' found in workspace: '{workspace_name}'"
                         ", please check spelling and try again")
 
@@ -81,11 +86,14 @@ def make_dropdown(workspace_name, origin_sheet_name, origin_column_name,
 
     # Error handling if incorrect column names
     if origin_column_name not in [c.title for c in origin_sheet.columns]:
+        logging.error(f"No column called: '{origin_column_name}' found in sheet: '{origin_sheet.name}'")
         raise Exception(f"No column called: '{origin_column_name}' found in sheet: '{origin_sheet.name}'")
     if target_column_name not in [c.title for c in target_sheet.columns]:
+        logging.error(f"No column called: '{origin_column_name}' found in sheet: '{origin_sheet.name}'")
         raise Exception(f"No column called: '{origin_column_name}' found in sheet: '{origin_sheet.name}'")
 
     if col_type not in ['MULTI_PICKLIST', 'PICKLIST']:
+        logging.error(f'Invalid column type entered: {col_type}')
         raise Exception(f'Invalid column type entered: {col_type}')
     # Fill options list with entries of column
     origin_column_id = origin_sheet.get_column_by_title(origin_column_name).id
@@ -142,6 +150,7 @@ def make_list_from_string(string):
         lst = string.split(', ')
         return lst
     else:
+        logging.error('TypeError in string handling, not a string')
         raise TypeError('Not a string')
 
 
@@ -175,6 +184,8 @@ def change_cell_in_row(sheet_id, row, lst, column_id, client):
     try:
         client.Sheets.update_rows(sheet_id, [row_object])
     except:
+        logging.error(f"couldn't write cell '{lst}' to row: {row.row_number}, column: '{column_id}' in sheet: "
+              f"'{client.Sheets.get_sheet(sheet_id)}'")
         print(f"couldn't write cell '{lst}' to row: {row.row_number}, column: '{column_id}' in sheet: "
               f"'{client.Sheets.get_sheet(sheet_id)}'")
 
@@ -194,6 +205,7 @@ def search(sheet, value):
         for cell in row.cells:
             if cell.value == value:
                 return row
+    logging.warning(f"{value} not Found in sheet: '{sheet.name}'")
     raise ValueError(f"{value} not Found in sheet: '{sheet.name}'")
 
 
@@ -217,8 +229,10 @@ def build_dict(workspace_name, sheet_name, key_column, values_column, client):
 
     # Error handling if incorrect column names
     if key_column not in [c.title for c in sheet.columns]:
+        logging.error(f"No column called: '{key_column}' found in sheet: '{sheet.name}'")
         raise Exception(f"No column called: '{key_column}' found in sheet: '{sheet.name}'")
     if values_column not in [c.title for c in sheet.columns]:
+        logging.error(f"No column called: '{values_column}' found in sheet: '{sheet.name}'")
         raise Exception(f"No column called: '{values_column}' found in sheet: '{sheet.name}'")
 
     keys_id = sheet.get_column_by_title(key_column).id
@@ -273,15 +287,16 @@ def compare_dicts(workspace_name, this_sheet_name, this_key_column, this_data_co
                 if key in thatdict[value]:  # If so, is the key of the first dict also a value in this dict?
                     thatdict[value].remove(key)  # Remove it, so if they are matched, we are left with an empty dict
                 else:  # If we find an entry which is unmatched, POST value to smartsheet cell
+                    print(value)
                     update_cell(workspace_name, that_sheet_name, that_data_column, key, value, client)
-                    print(f'updated {i}th {length1} entries, from first dict')
+                    print(f'updated {i}th {length2} entries, from first dict')
                     i += 1
     # This dict should be empty
     for key in thatdict:
-        if thatdict[key]:  # If not, POST value to smartsheet cell
+        if thatdict[key]:  # If there is a value, POST value to smartsheet cell
             for value in thatdict[key]:
                 update_cell(workspace_name, this_sheet_name, this_data_column, key, value, client)
-                print(f'updated {i}th of {length2} entries, from second dict')
+                print(f'updated {i}th of {length1} entries, from second dict')
                 i += 1
 
 
