@@ -3,7 +3,7 @@ import sys
 import logging
 # --- Internals ---
 # --- Externals ---
-from smartsheet import Smartsheet, sheets, workspaces
+from smartsheet import Smartsheet
 from smartsheet.models import Column, Sheet, Cell, MultiPicklistObjectValue, Row
 
 
@@ -183,9 +183,8 @@ def change_cell_in_row(sheet_id, row, lst, column_id, client):
     # POST row to smartsheet
     try:
         client.Sheets.update_rows(sheet_id, [row_object])
-    except:
-        logging.error(f"couldn't write cell '{lst}' to row: {row.row_number}, column: '{column_id}' in sheet: "
-              f"'{client.Sheets.get_sheet(sheet_id)}'")
+    except Exception as e:
+        logging.exception(e)
         print(f"couldn't write cell '{lst}' to row: {row.row_number}, column: '{column_id}' in sheet: "
               f"'{client.Sheets.get_sheet(sheet_id)}'")
 
@@ -193,9 +192,11 @@ def change_cell_in_row(sheet_id, row, lst, column_id, client):
 def search(sheet, value):
 
     """Search a sheet for a specified value, returns the row that contains the value
+
     Args:
         sheet (Sheet): Sheet to search
         value (str): Search value
+
     Returns:
         row (Row): Row that contains search value
     """
@@ -277,9 +278,7 @@ def compare_dicts(workspace_name, this_sheet_name, this_key_column, this_data_co
     # First build both dicts to compare
     thisdict = build_dict(workspace_name, this_sheet_name, this_key_column, this_data_column, client)
     thatdict = build_dict(workspace_name, that_sheet_name, that_key_column, that_data_column, client)
-    length1 = len(thisdict)
-    length2 = len(thatdict)
-    i = 0
+
     # Go through the first dict, to check that all the values in this dict
     for key in thisdict:
         for value in thisdict[key]:
@@ -287,17 +286,13 @@ def compare_dicts(workspace_name, this_sheet_name, this_key_column, this_data_co
                 if key in thatdict[value]:  # If so, is the key of the first dict also a value in this dict?
                     thatdict[value].remove(key)  # Remove it, so if they are matched, we are left with an empty dict
                 else:  # If we find an entry which is unmatched, POST value to smartsheet cell
-                    print(value)
                     update_cell(workspace_name, that_sheet_name, that_data_column, key, value, client)
-                    print(f'updated {i}th {length2} entries, from first dict')
-                    i += 1
+
     # This dict should be empty
     for key in thatdict:
         if thatdict[key]:  # If there is a value, POST value to smartsheet cell
             for value in thatdict[key]:
                 update_cell(workspace_name, this_sheet_name, this_data_column, key, value, client)
-                print(f'updated {i}th of {length1} entries, from second dict')
-                i += 1
 
 
 def update_cell(workspace_name, sheet, column_name, value, search_value, client):
