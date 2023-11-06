@@ -40,11 +40,12 @@ SJ_val = 'Sales Packages'
 if __name__ == '__main__':
 
     # Make and fill dropdown menus
-    # make_dropdown(workspace, enigines, enigines_col, SJ, enigines_target_col, 'MULTI_PICKLIST')
-    # make_dropdown(workspace, job_codes, job_codes_col, SJ, Naxt_JC, 'PICKLIST')
-    # make_dropdown(workspace, job_codes, job_codes_col, SJ, Actual_JC, 'PICKLIST')
-    # make_dropdown(workspace, component_codes, component_codes_col, SJ, Naxt_CC, 'PICKLIST')
-    # make_dropdown(workspace, component_codes, component_codes_col, SJ, Actual_CC, 'PICKLIST')
-    # make_dropdown(workspace, SJ, SJ_key, SP, SP_val, 'MULTI_PICKLIST')
+    make_dropdown(workspace, enigines, enigines_col, SJ, enigines_target_col, 'MULTI_PICKLIST')
+    make_dropdown(workspace, job_codes, job_codes_col, SJ, Naxt_JC, 'PICKLIST')
+    make_dropdown(workspace, job_codes, job_codes_col, SJ, Actual_JC, 'PICKLIST')
+    make_dropdown(workspace, component_codes, component_codes_col, SJ, Naxt_CC, 'PICKLIST')
+    make_dropdown(workspace, component_codes, component_codes_col, SJ, Actual_CC, 'PICKLIST')
+    make_dropdown(workspace, SJ, SJ_key, SP, SP_val, 'MULTI_PICKLIST')
+
     # Update linked columns
     compare_dicts(workspace, SJ, SJ_key, SJ_val, SP, SP_key, SP_val)
