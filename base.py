@@ -54,17 +54,19 @@ def init_sheet(workspace_name, sheet_name, client):
     return client.Sheets.get_sheet(sheet_id)
 
 
-def make_dropdown(origin_sheet_name, origin_column_name, target_sheet_name, target_column_name, workspace):
+def make_dropdown(workspace_name, origin_sheet_name, origin_column_name,
+                  target_sheet_name, target_column_name, col_type):
 
     """Populates a dropdown list with variables from a sheet, and updates a column in a different sheet to this dropdown
     list
 
     Args:
+        workspace_name (str): Workspace name
         origin_sheet_name (str): Name of sheet where you will retreive data
         origin_column_name (str): Name of column where you will retreive data
         target_sheet_name (str): Name of sheet where you will populate dropdown
         target_column_name (str): Name of column where to populate dropdown
-        workspace (str): Workspace name
+        col_type (str): Type of column
 
     Returns:
         Void
@@ -74,8 +76,8 @@ def make_dropdown(origin_sheet_name, origin_column_name, target_sheet_name, targ
     client = init_client()
 
     # Create sheet objects and map clumn names to IDs
-    origin_sheet = init_sheet(workspace, origin_sheet_name, client)
-    target_sheet = init_sheet(workspace, target_sheet_name, client)
+    origin_sheet = init_sheet(workspace_name, origin_sheet_name, client)
+    target_sheet = init_sheet(workspace_name, target_sheet_name, client)
 
     # Error handling if incorrect column names
     if origin_column_name not in [c.title for c in origin_sheet.columns]:
@@ -83,12 +85,14 @@ def make_dropdown(origin_sheet_name, origin_column_name, target_sheet_name, targ
     if target_column_name not in [c.title for c in target_sheet.columns]:
         raise Exception(f"No column called: '{origin_column_name}' found in sheet: '{origin_sheet.name}'")
 
-    # Read column values from sheet and fill list
+    if col_type not in ['MULTI_PICKLIST', 'PICKLIST']:
+        raise Exception(f'Invalid column type entered: {col_type}')
+    # Fill options list with entries of column
+    origin_column_id = origin_sheet.get_column_by_title(origin_column_name).id
     options = []
     for row in origin_sheet.rows:
-        for cell in row.cells:
-            if cell.column_id == origin_sheet.get_column_by_title(origin_column_name).id:
-                options.append(cell.value)
+        cell = row.get_column(origin_column_id)
+        options.append(cell.value)
 
     # Find target column for name and index
     target_column = target_sheet.get_column_by_title(target_column_name)
@@ -96,9 +100,7 @@ def make_dropdown(origin_sheet_name, origin_column_name, target_sheet_name, targ
     # Make new column variable with multi picklist
     update_column = Column({
         'title': target_column.title,
-        'index': target_column.index,
-        'type': 'MULTI_PICKLIST',
-        'include': 'ObjectValue',
+        'type': col_type,
         'options': options,
     })
 
@@ -170,7 +172,11 @@ def change_cell_in_row(sheet_id, row, lst, column_id, client):
     })
 
     # POST row to smartsheet
-    client.Sheets.update_rows(sheet_id, [row_object])
+    try:
+        client.Sheets.update_rows(sheet_id, [row_object])
+    except:
+        print(f"couldn't write cell '{lst}' to row: {row.row_number}, column: '{column_id}' in sheet: "
+              f"'{client.Sheets.get_sheet(sheet_id)}'")
 
 
 def search(sheet, value):
@@ -191,12 +197,12 @@ def search(sheet, value):
     raise ValueError(f"{value} not Found in sheet: '{sheet.name}'")
 
 
-def build_dict(workspace, sheet_name, key_column, values_column, client):
+def build_dict(workspace_name, sheet_name, key_column, values_column, client):
 
     """Builds a dictionary of all the options from a multi picklist
 
     Args:
-        workspace (str): Workspace name
+        workspace_name (str): Workspace name
         sheet_name (str): Sheet name
         key_column (str): Name of column containing dict keys
         values_column (str): Name of column containing dict values
@@ -207,7 +213,7 @@ def build_dict(workspace, sheet_name, key_column, values_column, client):
     """
 
     # Initiate sheet and column IDs
-    sheet = init_sheet(workspace, sheet_name, client)
+    sheet = init_sheet(workspace_name, sheet_name, client)
 
     # Error handling if incorrect column names
     if key_column not in [c.title for c in sheet.columns]:
@@ -257,7 +263,9 @@ def compare_dicts(workspace_name, this_sheet_name, this_key_column, this_data_co
     # First build both dicts to compare
     thisdict = build_dict(workspace_name, this_sheet_name, this_key_column, this_data_column, client)
     thatdict = build_dict(workspace_name, that_sheet_name, that_key_column, that_data_column, client)
-
+    length1 = len(thisdict)
+    length2 = len(thatdict)
+    i = 0
     # Go through the first dict, to check that all the values in this dict
     for key in thisdict:
         for value in thisdict[key]:
@@ -266,20 +274,23 @@ def compare_dicts(workspace_name, this_sheet_name, this_key_column, this_data_co
                     thatdict[value].remove(key)  # Remove it, so if they are matched, we are left with an empty dict
                 else:  # If we find an entry which is unmatched, POST value to smartsheet cell
                     update_cell(workspace_name, that_sheet_name, that_data_column, key, value, client)
-
+                    print(f'updated {i}th {length1} entries, from first dict')
+                    i += 1
     # This dict should be empty
     for key in thatdict:
         if thatdict[key]:  # If not, POST value to smartsheet cell
             for value in thatdict[key]:
                 update_cell(workspace_name, this_sheet_name, this_data_column, key, value, client)
+                print(f'updated {i}th of {length2} entries, from second dict')
+                i += 1
 
 
-def update_cell(workspace, sheet, column_name, value, search_value, client):
+def update_cell(workspace_name, sheet, column_name, value, search_value, client):
 
     """Appends an option onto a multi picklist cell
 
     Args:
-        workspace (str): Workspace name
+        workspace_name (str): Workspace name
         sheet (str): Sheet name
         column_name (str): Column name
         value (str): Value to append to cell
@@ -291,7 +302,7 @@ def update_cell(workspace, sheet, column_name, value, search_value, client):
     """
 
     # Initiate sheet and row object
-    sheet = init_sheet(workspace, sheet, client)
+    sheet = init_sheet(workspace_name, sheet, client)
     row = search(sheet, search_value)
     column = sheet.get_column_by_title(column_name)  # Turns column name into column ID
 
