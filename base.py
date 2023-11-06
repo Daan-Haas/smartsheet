@@ -3,7 +3,7 @@ import sys
 import logging
 # --- Internals ---
 # --- Externals ---
-from smartsheet import Smartsheet, sheets, workspaces
+from smartsheet import Smartsheet
 from smartsheet.models import Column, Sheet, Cell, MultiPicklistObjectValue, Row
 
 
@@ -185,7 +185,7 @@ def change_cell_in_row(sheet_id, row, lst, column_id, client):
         client.Sheets.update_rows(sheet_id, [row_object])
     except:
         logging.error(f"couldn't write cell '{lst}' to row: {row.row_number}, column: '{column_id}' in sheet: "
-              f"'{client.Sheets.get_sheet(sheet_id)}'")
+                      f"'{client.Sheets.get_sheet(sheet_id)}'")
         print(f"couldn't write cell '{lst}' to row: {row.row_number}, column: '{column_id}' in sheet: "
               f"'{client.Sheets.get_sheet(sheet_id)}'")
 
@@ -193,9 +193,11 @@ def change_cell_in_row(sheet_id, row, lst, column_id, client):
 def search(sheet, value):
 
     """Search a sheet for a specified value, returns the row that contains the value
+
     Args:
         sheet (Sheet): Sheet to search
         value (str): Search value
+
     Returns:
         row (Row): Row that contains search value
     """
