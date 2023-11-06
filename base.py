@@ -113,7 +113,11 @@ def make_dropdown(workspace_name, origin_sheet_name, origin_column_name,
     })
 
     # POST updated column to smartsheet
-    client.Sheets.update_column(target_sheet.id, target_column.id, update_column)
+    try:
+        client.Sheets.update_column(target_sheet.id, target_column.id, update_column)
+    except Exception as e:
+        logging.warning(e)
+        logging.warning(f"couldn't write column: {update_column} to sheet: {target_sheet_name}")
 
 
 def make_picklist_cell(column_id, values: list):
@@ -185,8 +189,8 @@ def change_cell_in_row(sheet_id, row, lst, column_id, client):
         client.Sheets.update_rows(sheet_id, [row_object])
     except Exception as e:
         logging.exception(e)
-        print(f"couldn't write cell '{lst}' to row: {row.row_number}, column: '{column_id}' in sheet: "
-              f"'{client.Sheets.get_sheet(sheet_id)}'")
+        logging.exception(f"couldn't write cell '{lst}' to row: {row.row_number}, column: '{column_id}' in sheet: "
+                          f"'{client.Sheets.get_sheet(sheet_id)}'")
 
 
 def search(sheet, value):
