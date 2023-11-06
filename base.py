@@ -14,7 +14,7 @@ def init_client():
     # Initialize client. Uses the API token in the environment variable "SMARTSHEET_ACCESS_TOKEN"
     smart = Smartsheet('47R8WwWUjjrnNwN6zGisOrHUh4Ed9b7CTKqya')
     # Make sure we don't miss any error
-    smart.errors_as_exceptions(False)
+    smart.errors_as_exceptions(True)
     return smart
 
 
