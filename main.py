@@ -26,7 +26,10 @@ except FileNotFoundError:  # If no last run file found
         key_file.write(KEY)
 
 # Check Time delta
-td = current_time - last_run
+if isinstance(last_run, datetime):
+    td = current_time - last_run
+else: td = 8
+
 if td.days > 7:  # If too long ago, ask for new key
     KEY = input('Please Input API key')
     with open('API key.txt', 'w') as key_file:

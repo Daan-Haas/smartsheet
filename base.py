@@ -3,7 +3,7 @@ import sys
 import logging
 # --- Internals ---
 # --- Externals ---
-from smartsheet import Smartsheet
+from smartsheet import Smartsheet, sheets, workspaces
 from smartsheet.models import Column, Sheet, Cell, MultiPicklistObjectValue, Row
 
 
