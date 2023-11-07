@@ -28,7 +28,8 @@ except FileNotFoundError:  # If no last run file found
 # Check Time delta
 if isinstance(last_run, datetime):
     td = current_time - last_run
-else: td = 8
+else:
+    td = 8
 
 if td.days > 7:  # If too long ago, ask for new key
     KEY = input('Please Input API key')
@@ -39,7 +40,7 @@ else:
         KEY = key_file.readline()
 
 # Work space
-workspace = 'Standardisation Prime API TEST'
+workspace = 'Standardisation Prime'
 
 # Source sheets & columns for dropdown menus
 enigines = 'Engine Models'
@@ -61,7 +62,7 @@ SP = 'Sales Packages'
 SJ = 'Standard Jobs/Building Blocks'
 
 # Key and value columns
-SP_key = 'SP Number (Naxt)'
+SP_key = 'Name of Standard'
 SJ_key = 'Naxt Reference'
 SP_val = 'Standard Jobs'
 SJ_val = 'Sales Packages'
