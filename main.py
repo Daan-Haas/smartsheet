@@ -76,6 +76,7 @@ if __name__ == '__main__':
     make_dropdown(KEY, workspace, component_codes, component_codes_col, SJ, Naxt_CC, 'PICKLIST')
     make_dropdown(KEY, workspace, component_codes, component_codes_col, SJ, Actual_CC, 'PICKLIST')
     make_dropdown(KEY, workspace, SJ, SJ_key, SP, SP_val, 'MULTI_PICKLIST')
+    make_dropdown(KEY, workspace, SP, SP_key, SJ, SJ_val, 'MULTI_PICKLIST')
 
     # Update linked columns
     compare_dicts(KEY, workspace, SJ, SJ_key, SJ_val, SP, SP_key, SP_val)
