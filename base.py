@@ -7,7 +7,7 @@ from smartsheet import Smartsheet, sheets, workspaces
 from smartsheet.models import Column, Sheet, Cell, MultiPicklistObjectValue, Row
 
 
-def init_client(key):
+def init_client(key: str) -> Smartsheet:
 
     """Initialize smartsheet.smartsheet object, unlocked with API key"""
 
@@ -19,7 +19,7 @@ def init_client(key):
     return smart
 
 
-def init_sheet(workspace_name, sheet_name, client):
+def init_sheet(workspace_name: str, sheet_name: str, client: Smartsheet) -> Sheet:
 
     """Read in smartsheet to python
 
@@ -29,7 +29,7 @@ def init_sheet(workspace_name, sheet_name, client):
         client (Client): Smartsheet client
 
     Returns:
-        Void
+        None
     """
 
     try:
@@ -60,8 +60,8 @@ def init_sheet(workspace_name, sheet_name, client):
     return client.Sheets.get_sheet(sheet_id)
 
 
-def make_dropdown(key, workspace_name, origin_sheet_name, origin_column_name,
-                  target_sheet_name, target_column_name, col_type):
+def make_dropdown(key: str, workspace_name: str, origin_sheet_name: str, origin_column_name: str,
+                  target_sheet_name: str, target_column_name: str, col_type: str) -> None:
 
     """Populates a dropdown list with variables from a sheet, and updates a column in a different sheet to this dropdown
     list
@@ -76,7 +76,7 @@ def make_dropdown(key, workspace_name, origin_sheet_name, origin_column_name,
         col_type (str): Type of column
 
     Returns:
-        Void
+        None
     """
 
     # Initiate client
@@ -122,7 +122,7 @@ def make_dropdown(key, workspace_name, origin_sheet_name, origin_column_name,
         logging.warning(f"couldn't write column: {update_column} to sheet: {target_sheet_name}")
 
 
-def make_picklist_cell(column_id, values: list):
+def make_picklist_cell(column_id: int, values: list) -> Cell:
 
     """Generates a cell that can be PUT into a MULTI PICK dropdown column
 
@@ -141,7 +141,7 @@ def make_picklist_cell(column_id, values: list):
     return new_cell
 
 
-def make_list_from_string(string):
+def make_list_from_string(string: str) -> list:
 
     """Simple string handling, turns parts of a string separated by ', ' into a list of strings
 
@@ -160,7 +160,7 @@ def make_list_from_string(string):
         raise TypeError('Not a string')
 
 
-def change_cell_in_row(sheet_id, row, lst, column_id, client):
+def change_cell_in_row(sheet_id: int, row: Row, lst: list, column_id: int, client: Smartsheet) -> None:
 
     """writes new information to row object in python, then PUTs updated row over old row in smartsheet
 
@@ -172,7 +172,7 @@ def change_cell_in_row(sheet_id, row, lst, column_id, client):
         client (Client): Smartsheet client
 
     Returns:
-        Void
+        None
     """
     # Rebuild row cell by Cell
     new_row = []
@@ -195,7 +195,7 @@ def change_cell_in_row(sheet_id, row, lst, column_id, client):
                           f"'{client.Sheets.get_sheet(sheet_id).name}'")
 
 
-def search(sheet, value):
+def search(sheet: Sheet, value: str) -> Row:
 
     """Search a sheet for a specified value, returns the row that contains the value
 
@@ -216,7 +216,8 @@ def search(sheet, value):
     raise ValueError(f"{value} not Found in sheet: '{sheet.name}'")
 
 
-def build_dict(workspace_name, sheet_name, key_column, values_column, client):
+def build_dict(workspace_name: str, sheet_name: str, key_column: str,
+               values_column: str, client: Smartsheet) -> dict:
 
     """Builds a dictionary of all the options from a multi picklist
 
@@ -259,8 +260,8 @@ def build_dict(workspace_name, sheet_name, key_column, values_column, client):
     return thisdict
 
 
-def compare_dicts(key, workspace_name, this_sheet_name, this_key_column, this_data_column, that_sheet_name,
-                  that_key_column, that_data_column):
+def compare_dicts(key: str, workspace_name: str, this_sheet_name: str, this_key_column: str, this_data_column: str,
+                  that_sheet_name: str, that_key_column: str, that_data_column: str) -> None:
 
     """Compares two multi dropdowns to see if the selections in one correlate to the rows of the other.
     I.E. if the parts present in an engine correlate to the engines which use that part.
@@ -276,7 +277,7 @@ def compare_dicts(key, workspace_name, this_sheet_name, this_key_column, this_da
         that_data_column (str): Name of cloumn containing values for second dict
 
     Returns:
-        Void
+        None
     """
 
     # initiate a client
@@ -302,24 +303,25 @@ def compare_dicts(key, workspace_name, this_sheet_name, this_key_column, this_da
                 update_cell(workspace_name, this_sheet_name, this_data_column, key, value, client)
 
 
-def update_cell(workspace_name, sheet, column_name, value, search_value, client):
+def update_cell(workspace_name: str, sheet_name: str, column_name: str, value: str,
+                search_value: str, client: Smartsheet) -> None:
 
     """Appends an option onto a multi picklist cell
 
     Args:
         workspace_name (str): Workspace name
-        sheet (str): Sheet name
+        sheet_name (str): Sheet name
         column_name (str): Column name
         value (str): Value to append to cell
         search_value (str): Search value to find cell
         client (Client): Smartsheet client
 
     Returns:
-        Void
+        None
     """
 
     # Initiate sheet and row object
-    sheet = init_sheet(workspace_name, sheet, client)
+    sheet = init_sheet(workspace_name, sheet_name, client)
     row = search(sheet, search_value)
     column = sheet.get_column_by_title(column_name)  # Turns column name into column ID
 
