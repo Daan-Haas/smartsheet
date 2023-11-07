@@ -7,12 +7,13 @@ from smartsheet import Smartsheet
 from smartsheet.models import Column, Sheet, Cell, MultiPicklistObjectValue, Row
 
 
-def init_client():
+def init_client(key):
 
     """Initialize smartsheet.smartsheet object, unlocked with API key"""
 
     # Initialize client. Uses the API token in the environment variable "SMARTSHEET_ACCESS_TOKEN"
-    smart = Smartsheet('47R8WwWUjjrnNwN6zGisOrHUh4Ed9b7CTKqya')
+    smart = Smartsheet(key)
+
     # Make sure we don't miss any error
     smart.errors_as_exceptions(True)
     return smart
@@ -59,13 +60,14 @@ def init_sheet(workspace_name, sheet_name, client):
     return client.Sheets.get_sheet(sheet_id)
 
 
-def make_dropdown(workspace_name, origin_sheet_name, origin_column_name,
+def make_dropdown(key, workspace_name, origin_sheet_name, origin_column_name,
                   target_sheet_name, target_column_name, col_type):
 
     """Populates a dropdown list with variables from a sheet, and updates a column in a different sheet to this dropdown
     list
 
     Args:
+        key (str): API key
         workspace_name (str): Workspace name
         origin_sheet_name (str): Name of sheet where you will retreive data
         origin_column_name (str): Name of column where you will retreive data
@@ -78,7 +80,7 @@ def make_dropdown(workspace_name, origin_sheet_name, origin_column_name,
     """
 
     # Initiate client
-    client = init_client()
+    client = init_client(key)
 
     # Create sheet objects and map clumn names to IDs
     origin_sheet = init_sheet(workspace_name, origin_sheet_name, client)
@@ -190,7 +192,7 @@ def change_cell_in_row(sheet_id, row, lst, column_id, client):
     except Exception as e:
         logging.exception(e)
         logging.exception(f"couldn't write cell '{lst}' to row: {row.row_number}, column: '{column_id}' in sheet: "
-                          f"'{client.Sheets.get_sheet(sheet_id)}'")
+                          f"'{client.Sheets.get_sheet(sheet_id).name}'")
 
 
 def search(sheet, value):
@@ -257,13 +259,14 @@ def build_dict(workspace_name, sheet_name, key_column, values_column, client):
     return thisdict
 
 
-def compare_dicts(workspace_name, this_sheet_name, this_key_column, this_data_column, that_sheet_name,
+def compare_dicts(key, workspace_name, this_sheet_name, this_key_column, this_data_column, that_sheet_name,
                   that_key_column, that_data_column):
 
     """Compares two multi dropdowns to see if the selections in one correlate to the rows of the other.
     I.E. if the parts present in an engine correlate to the engines which use that part.
 
     Args:
+        key (str): API key
         workspace_name (str): Workspace name
         this_sheet_name (str): Name of one of the sheets to compare
         this_key_column (str): Name of column containing keys for first dict
@@ -277,7 +280,7 @@ def compare_dicts(workspace_name, this_sheet_name, this_key_column, this_data_co
     """
 
     # initiate a client
-    client = init_client()
+    client = init_client(key)
 
     # First build both dicts to compare
     thisdict = build_dict(workspace_name, this_sheet_name, this_key_column, this_data_column, client)
