@@ -1,6 +1,7 @@
 # --- built ins ---
 import sys
 import logging
+from datetime import datetime
 # --- Internals ---
 # --- Externals ---
 from smartsheet import Smartsheet, sheets, workspaces
@@ -335,3 +336,40 @@ def update_cell(workspace_name: str, sheet_name: str, column_name: str, value: s
     # Add new values to list and POST back to smartsheet
     values.append(value)
     change_cell_in_row(sheet.id, row, values, column.id, client)
+
+
+def check_key():
+
+    # Check datetime to see if new Key required
+    fmt = "%Y-%m-%d %H:%M:%S"
+    last_run = ""
+    current_time = datetime.now()
+
+    try:  # Read in the last run time, then overwrite with current time
+        with open("last run.txt", mode="r") as file:
+            last_run = datetime.strptime(file.read(), fmt)
+        with open('last run.txt', mode='w') as file:
+            file.write(current_time.strftime(fmt))
+
+    except FileNotFoundError:  # If no last run file found
+        with open('last run.txt', mode='w') as file:  # Write one
+            file.write(current_time.strftime(fmt))
+        key = input('Please Input API key')  # And ask for API key
+        with open('API key.txt', 'w') as key_file:
+            key_file.write(key)
+
+    # Check Time delta
+    if isinstance(last_run, datetime):
+        td = current_time - last_run
+    else:
+        td = 8
+
+    if td.days > 7:  # If too long ago, ask for new key
+        key = input('Please Input API key')
+        with open('API key.txt', 'w') as key_file:
+            key_file.write(key)
+    else:
+        with open('API key.txt') as key_file:
+            key = key_file.readline()
+
+    return key

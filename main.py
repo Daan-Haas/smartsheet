@@ -1,81 +1,42 @@
 # --- built ins ---
 # --- internals ---
 from base import *
-from datetime import datetime
 # --- externals ---
 
 # Set up logging
 logging.basicConfig(filename='errorlog.log', filemode='w', level=logging.WARNING)
 
-# Check datetime to see if new Key required
-fmt = "%Y-%m-%d %H:%M:%S"
-last_run = ""
-current_time = datetime.now()
+# Read in key from file or user input
+KEY = check_key()
 
-try:  # Read in the last run time, then overwrite with current time
-    with open("last run.txt", mode="r") as file:
-        last_run = datetime.strptime(file.read(), fmt)
-    with open('last run.txt', mode='w') as file:
-        file.write(current_time.strftime(fmt))
 
-except FileNotFoundError:  # If no last run file found
-    with open('last run.txt', mode='w') as file:  # Write one
-        file.write(current_time.strftime(fmt))
-    KEY = input('Please Input API key')  # And ask for API key
-    with open('API key.txt', 'w') as key_file:
-        key_file.write(KEY)
+""" These are the names of the workspace, sheets and columns that you want to perform actions on"""
 
-# Check Time delta
-if isinstance(last_run, datetime):
-    td = current_time - last_run
-else:
-    td = 8
-
-if td.days > 7:  # If too long ago, ask for new key
-    KEY = input('Please Input API key')
-    with open('API key.txt', 'w') as key_file:
-        key_file.write(KEY)
-else:
-    with open('API key.txt') as key_file:
-        KEY = key_file.readline()
-
-# Work space
-workspace = 'Standardisation Prime'
+# Work space. All your sheets need to be in the same workspace
+workspace = 'Workspace name'
 
 # Source sheets & columns for dropdown menus
-enigines = 'Engine Models'
-enigines_col = 'Engine Models'
-enigines_target_col = 'Engine Models'
+dropdown_sheet = 'Dropdown Sheet Name'  # This is the sheet in which you would like to populate your dropdown
+dropdown_col = 'Dropdown column name'  # This is the column that needs to become your dropdown
 
-job_codes = 'Job Codes'
-job_codes_col = 'Job Code'
-Naxt_JC = 'Naxt Job Code'
-Actual_JC = 'Actual Job Code'
+origin_sheet = 'Origin Sheet Name'  # This is the sheet containing the dropdown options
+origin_col = 'Origin Column Name'  # This is the column containing the dropdown options
+col_type = 'MULTI_PICKLIST'  # The type of picklist you want 'MULTI_PICKLIST' If you want multiple selectable
+                             # 'PICKLIST' If you want only one option
 
-component_codes = 'Component Codes'
-component_codes_col = 'Component Code'
-Naxt_CC = 'Naxt Component Code'
-Actual_CC = 'Actual Component Code'
 
-# Sheets to compare
-SP = 'Sales Packages'
-SJ = 'Standard Jobs/Building Blocks'
-
-# Key and value columns
-SP_key = 'Name of Standard'
-SJ_key = 'Naxt Reference'
-SP_val = 'Standard Jobs'
-SJ_val = 'Sales Packages'
+"""These are the names of the co-dependent sheets and columns"""
+frst_sheet = 'First Sheet Name'  # Name of the sheet containing one of the co-dependent columns
+scnd_sheet = 'Second Sheet Name'  # Name of the sheet containing the other co-dependent column
+frst_key_col = 'First Search Column'  # Name of the search column in the first sheet
+frst_val_col = 'First Co-dependent Column'  # Name of the first co-dependent column
+scnd_key_col = 'Second Search Column'  # Name of the search column in the second sheet
+scnd_val_col = 'Second Co-dependent Column'  # Name of the second co-dependent column
 
 if __name__ == '__main__':
 
     # Make and fill dropdown menus
-    make_dropdown(KEY, workspace, enigines, enigines_col, SJ, enigines_target_col, 'MULTI_PICKLIST')
-    make_dropdown(KEY, workspace, job_codes, job_codes_col, SJ, Naxt_JC, 'PICKLIST')
-    make_dropdown(KEY, workspace, job_codes, job_codes_col, SJ, Actual_JC, 'PICKLIST')
-    make_dropdown(KEY, workspace, component_codes, component_codes_col, SJ, Naxt_CC, 'PICKLIST')
-    make_dropdown(KEY, workspace, component_codes, component_codes_col, SJ, Actual_CC, 'PICKLIST')
-    make_dropdown(KEY, workspace, SJ, SJ_key, SP, SP_val, 'MULTI_PICKLIST')
+    make_dropdown(KEY, workspace, origin_sheet, origin_col, dropdown_sheet, dropdown_col, col_type)
 
     # Update linked columns
-    compare_dicts(KEY, workspace, SJ, SJ_key, SJ_val, SP, SP_key, SP_val)
+    compare_dicts(KEY, workspace, frst_sheet, frst_key_col, frst_val_col, scnd_sheet, scnd_key_col, scnd_val_col)
