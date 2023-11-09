@@ -14,7 +14,7 @@
       <a href="#getting-started">Getting Started</a>
       <ul>
         <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
+        <li><a href="#setting up">Setting up</a></li>
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
@@ -55,14 +55,15 @@ If you want to run the project as an executable, also install auto-py-to-exe, us
 
 `$ pip install auto-py-to-exe`
 
-### setting up
+### Setting up
 
 #### Set main.py
 in the main.py file
 
 set the correct name values
 
-```workspace = 'Workspace name'
+```
+workspace = 'Workspace name'
 dropdown_sheet = 'Dropdown Sheet Name'
 dropdown_col = 'Dropdown column name'
 
@@ -86,8 +87,6 @@ convert your .py file to an exe, for an example how to do this visit: https://py
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-
-<!-- USAGE EXAMPLES -->
 ## Usage
 
 After this, using the project is as simple as clicking on the executable!

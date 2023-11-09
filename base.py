@@ -2,6 +2,7 @@
 import sys
 import logging
 from datetime import datetime
+
 # --- Internals ---
 # --- Externals ---
 from smartsheet import Smartsheet, sheets, workspaces
@@ -340,6 +341,14 @@ def update_cell(workspace_name: str, sheet_name: str, column_name: str, value: s
 
 def check_key():
 
+    """
+    This function reads the last run and API key files to see if there is data there, if neccessary it asks for a new
+    key
+
+    Returns:
+        key (str): API key
+    """
+
     # Check datetime to see if new Key required
     fmt = "%Y-%m-%d %H:%M:%S"
     last_run = ""
@@ -354,7 +363,7 @@ def check_key():
     except FileNotFoundError:  # If no last run file found
         with open('last run.txt', mode='w') as file:  # Write one
             file.write(current_time.strftime(fmt))
-        key = input('Please Input API key')  # And ask for API key
+        key = input('Please Input API key\n')  # And ask for API key
         with open('API key.txt', 'w') as key_file:
             key_file.write(key)
 
