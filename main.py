@@ -22,7 +22,7 @@ dropdown_col = 'Dropdown column name'  # This is the column that needs to become
 origin_sheet = 'Origin Sheet Name'  # This is the sheet containing the dropdown options
 origin_col = 'Origin Column Name'  # This is the column containing the dropdown options
 col_type = 'MULTI_PICKLIST'  # The type of picklist you want 'MULTI_PICKLIST' If you want multiple selectable
-                             # 'PICKLIST' If you want only one option
+#                              'PICKLIST' If you want only one option
 
 
 """These are the names of the co-dependent sheets and columns"""
