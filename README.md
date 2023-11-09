@@ -108,6 +108,21 @@ Paste this key into the terminal and press enter.
 The program will ask you to renew your API key once every week.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+### Considerations
+
+Some things worth noting when using this program:
+
+#### Cell permissions
+The `make_dropdown` function right now only fills the options and sets the column type. It does not change other settings of the column, these features could be added upon request.
+
+The same applies to the `compare_dict` function. In this case, the smartsheet option 'Restrict to list values only' option might cause trouble, when trying to write an option that is not in the list.
+
+#### Removing values
+The `make_dropdown` function makes a new options list anytime it is run, meaning if values are removed from the origin column, they will also be removed from the dropdown picklist.
+
+The `compare_dict` function appends new values to the cell. this means it **does not** have the ability to remove values from cells. this means that if you have a value that needs to be removed, it will need to be removed from **both** sheets.
+If there is need for a function that can remove values from a picklist cell, please open an issue of for the repo if you want to contribute.
+
 
 
 <!-- CONTRIBUTING -->
